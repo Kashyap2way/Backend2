@@ -15,5 +15,8 @@
     "url": "https://github.com/Kashyap2way/Backend2/issues"
   },
   "homepage": "https://github.com/Kashyap2way/Backend2#readme",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
 }
