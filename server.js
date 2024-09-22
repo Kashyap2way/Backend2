@@ -1,41 +1,38 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
 const app = express();
 const port = process.env.PORT || 10000;
 
-app.use(cors()); // Enable cross-origin requests
+// Middleware to handle JSON requests and CORS
+app.use(express.json());
+app.use(cors()); // Allow requests from different origins (e.g., Netlify frontend)
 
-// Connect to MongoDB Atlas
-mongoose.connect('mongodb+srv://kashyapmistry2021:ws7Gqbfgy3*hQZ5@db1cluster1.skf8r.mongodb.net/?retryWrites=true&w=majority&appName=DB1Cluster1', { useNewUrlParser: true, useUnifiedTopology: true })
-.then(() => console.log('Connected to MongoDB Atlas'))
-.catch((err) => console.error('Error connecting to MongoDB:', err));
+// Connect to MongoDB
+mongoose.connect('mongodb+srv://kashyapmistry2021:ws7Gqbfgy3*hQZ5@db1cluster1.skf8r.mongodb.net/?retryWrites=true&w=majority&appName=DB1Cluster1', { useNewUrlParser: true, useUnifiedTopology: true });
 
-// Define RideHistory schema
-const rideHistorySchema = new mongoose.Schema({
+// Ride schema and model
+const rideSchema = new mongoose.Schema({
+pickup: String,
+destination: String,
 name: String,
-rideDetails: Array,
+dateTime: String, // Date and time of the ride
 });
 
-// Define RideHistory model
-const RideHistory = mongoose.model('RideHistory', rideHistorySchema);
+const Ride = mongoose.model('Ride', rideSchema, 'rides'); // 'rides' is the collection name
 
-// Route to fetch ride history based on name
-app.get('/api/ride-history/:name', async (req, res) => {
-const { name } = req.params;
+// Fetch ride history for a specific user by name
+app.get('/api/ridehistory/:name', async (req, res) => {
 try {
-    const rideHistory = await RideHistory.findOne({ name: name });
-    if (rideHistory) {
-    res.json(rideHistory.rideDetails); // Send back the ride details
-    } else {
-    res.status(404).json({ message: 'No ride history found for this user.' });
-    }
+    const userName = req.params.name;
+    const rides = await Ride.find({ name: userName });
+    res.json(rides);
 } catch (error) {
-    res.status(500).json({ message: 'Error fetching ride history.', error });
+    res.status(500).json({ error: 'Server error while fetching ride history' });
 }
 });
 
+// Start the server
 app.listen(port, () => {
 console.log(`Server running on port ${port}`);
 });
